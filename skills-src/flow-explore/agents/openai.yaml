@@ -1,0 +1,5 @@
+prompts:
+  default:
+    display_name: "Explorar"
+    short_description: "Investiga o problema antes do fluxo formal."
+    default_prompt: "Use $flow-explore para investigar a ideia NOME_DA_FUNCIONALIDADE, mapear opcoes, riscos e recomendar o proximo passo sem criar artefatos por padrao."

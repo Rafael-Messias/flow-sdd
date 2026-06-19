@@ -1,0 +1,4 @@
+interface:
+  display_name: "Planejar Feature"
+  short_description: "Orquestra PRD, TechSpec, tarefas e opcionalmente um draft preliminar de validacao."
+  default_prompt: "Use $flow-plan para transformar a ideia NOME_DA_FUNCIONALIDADE em PRD, TechSpec e tarefas validadas, preservando perguntas e aprovacoes interativas, e ofereca um draft preliminar de validacao ao final."

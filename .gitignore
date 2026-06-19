@@ -1,0 +1,17 @@
+node_modules/
+*.tgz
+*.log
+npm-debug.log*
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+.agents/
+.claude/
+.gemini/
+.cursor/
+.playwright-mcp/
+
+flow.config.yaml

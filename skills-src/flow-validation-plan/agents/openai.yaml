@@ -1,0 +1,4 @@
+interface:
+  display_name: "Criar Plano de Validacao"
+  short_description: "Gera plano final pos-review ou draft preliminar de validacao."
+  default_prompt: "Use $flow-validation-plan para gerar plano e cenarios detalhados de validacao da feature NOME_DA_FUNCIONALIDADE, incluindo comandos de ambiente, variaveis, seeds e evidencias, no modo preliminary ou final conforme solicitado."

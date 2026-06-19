@@ -1,0 +1,5 @@
+version: 1
+openai:
+  display_name: "Executar PRD"
+  short_description: "Executa tarefas, revisa e pode oferecer o plano final de validacao."
+  default_prompt: "Execute todas as tarefas pendentes do PRD chamado NOME_DA_FUNCIONALIDADE, usando contexto fresco para cada tarefa, depois rode uma rodada de revisao e, se ela terminar limpa, ofereca gerar o plano final de validacao."

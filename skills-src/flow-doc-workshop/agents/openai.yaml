@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elaborar Documento"
+  short_description: "Estrutura e rascunha documentos genericos do repositorio."
+  default_prompt: "Use $flow-doc-workshop para elaborar ou atualizar um documento do repositorio, descobrindo contexto, propondo outline e iterando ate aprovacao."

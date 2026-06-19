@@ -1,0 +1,28 @@
+{
+  "name": "@padroes-dev-ia/flow-skills",
+  "version": "0.1.0",
+  "description": "Installable flow-* skills package with project-local sync for Codex and Claude style workflows.",
+  "author": "Rafael Messias",
+  "type": "module",
+  "bin": {
+    "flow-skills": "./bin/flow-skills.js"
+  },
+  "files": [
+    "README.md",
+    "bin",
+    "scripts",
+    "skills-src",
+    "src"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "lint": "node ./scripts/lint.mjs",
+    "test": "node ./scripts/test.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  }
+}
