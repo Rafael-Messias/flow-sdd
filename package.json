@@ -24,5 +24,22 @@
   },
   "dependencies": {
     "yaml": "^2.8.1"
-  }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rafael-Messias/flow-sdd.git"
+  },
+  "homepage": "https://github.com/Rafael-Messias/flow-sdd#readme",
+  "bugs": {
+    "url": "https://github.com/Rafael-Messias/flow-sdd/issues"
+  },
+  "keywords": [
+    "sdd",
+    "spec-driven-development",
+    "codex",
+    "claude",
+    "workflow",
+    "skills"
+  ]
 }
