@@ -1,4 +1,4 @@
-# flow-skills
+# flow-sdd
 
 Installable `flow-*` skills package for a governed Spec-Driven Development workflow.
 
@@ -38,19 +38,19 @@ That means the package is opinionated about:
 ## Install
 
 ```bash
-npm i -D @padroes-dev-ia/flow-skills
+npm i -D flow-sdd
 ```
 
 ## CLI
 
 ```bash
-npx flow-skills list --json
-npx flow-skills init --project /path/to/project --tools codex,claude --profile strict
-npx flow-skills update --project /path/to/project
-npx flow-skills doctor --project /path/to/project --strict
-npx flow-skills status --project /path/to/project --feature my-feature
-npx flow-skills next --project /path/to/project --feature my-feature
-npx flow-skills verify --project /path/to/project --feature my-feature
+npx flow-sdd list --json
+npx flow-sdd init --project /path/to/project --tools codex,claude --profile strict
+npx flow-sdd update --project /path/to/project
+npx flow-sdd doctor --project /path/to/project --strict
+npx flow-sdd status --project /path/to/project --feature my-feature
+npx flow-sdd next --project /path/to/project --feature my-feature
+npx flow-sdd verify --project /path/to/project --feature my-feature
 ```
 
 ## Commands
@@ -102,10 +102,10 @@ npx flow-skills verify --project /path/to/project --feature my-feature
 Bootstrap the package in your repository:
 
 ```bash
-npm i -D @padroes-dev-ia/flow-skills
-npx flow-skills init --project . --tools codex,claude --profile strict
-npx flow-skills status --project .
-npx flow-skills next --project .
+npm i -D flow-sdd
+npx flow-sdd init --project . --tools codex,claude --profile strict
+npx flow-sdd status --project .
+npx flow-sdd next --project .
 ```
 
 Then, in your LLM client, start planning a shopping cart feature for a product catalog site:
@@ -135,7 +135,7 @@ Expected planning artifacts:
 1. Initialize the workflow in the repository.
 
 ```bash
-npx flow-skills init --project . --tools codex,claude --profile strict
+npx flow-sdd init --project . --tools codex,claude --profile strict
 ```
 
 2. Plan the feature in the LLM client.
@@ -166,8 +166,8 @@ Produce the planning artifacts end to end.
 Optional checkpoint after planning:
 
 ```bash
-npx flow-skills status --project . --feature shopping-cart
-npx flow-skills verify --project . --feature shopping-cart
+npx flow-sdd status --project . --feature shopping-cart
+npx flow-sdd verify --project . --feature shopping-cart
 ```
 
 3. Execute the planned work in the LLM client.
@@ -181,8 +181,8 @@ Implement the planned tasks end to end, keep task tracking updated, and stop whe
 If you want to inspect progress from the terminal while work is running:
 
 ```bash
-npx flow-skills status --project . --feature shopping-cart
-npx flow-skills next --project . --feature shopping-cart
+npx flow-sdd status --project . --feature shopping-cart
+npx flow-sdd next --project . --feature shopping-cart
 ```
 
 4. Review the implementation in the LLM client.
@@ -219,8 +219,8 @@ Generate the final validation package with scenarios for:
 6. Run a final audit from the terminal.
 
 ```bash
-npx flow-skills status --project . --feature shopping-cart
-npx flow-skills verify --project . --feature shopping-cart
+npx flow-sdd status --project . --feature shopping-cart
+npx flow-sdd verify --project . --feature shopping-cart
 ```
 
 Typical end state for this example:
@@ -314,7 +314,7 @@ context: |
 rules:
   review:
     - Compare task files against _tasks.md before review.
-    - Prefer flow-skills verify before flow-review.
+    - Prefer flow-sdd verify before flow-review.
   testing:
     - Run focused tests before broad suites.
 ```
@@ -351,7 +351,7 @@ This is intentionally path-driven instead of convention-driven.
 
 - if a tool has an official install location in your repo, point to it explicitly
 - if a tool uses a different shape, adjust the path without changing the package code
-- this keeps `flow-skills` extensible beyond Codex and Claude without hardcoding fragile assumptions
+- this keeps `flow-sdd` extensible beyond Codex and Claude without hardcoding fragile assumptions
 
 ## Output targets
 
@@ -363,7 +363,7 @@ This is intentionally path-driven instead of convention-driven.
 
 Use both layers:
 
-- `flow-skills verify`: artifact and workflow alignment audit
+- `flow-sdd verify`: artifact and workflow alignment audit
 - `flow-verify`: installed skill that enforces fresh execution evidence before completion claims
 
 ## Generic Documents

@@ -152,7 +152,7 @@ function injectProjectOverlay(contents, config) {
 
   sections.push("## Flow Package Overlay");
   sections.push("");
-  sections.push("Estas instrucoes sao geradas a partir de `flow.config.yaml` pelo pacote `flow-skills`.");
+  sections.push("Estas instrucoes sao geradas a partir de `flow.config.yaml` pelo pacote `flow-sdd`.");
   sections.push("");
   sections.push(`- Perfil ativo: \`${config.profile}\``);
   sections.push(`- Compatibilidade legada \`cmd-*\`: ${config.compat.cmd_prefix ? "enabled" : "disabled"}`);

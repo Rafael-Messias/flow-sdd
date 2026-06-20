@@ -9,16 +9,16 @@ import { runStatus } from "./commands/status.mjs";
 import { runUpdate } from "./commands/update.mjs";
 import { runVerify } from "./commands/verify.mjs";
 
-const HELP_TEXT = `flow-skills
+const HELP_TEXT = `flow-sdd
 
 Usage:
-  flow-skills list [--json]
-  flow-skills init [--project <path>] [--tools <csv>] [--profile <name>] [--compat-cmd-prefix|--no-compat-cmd-prefix]
-  flow-skills update [--project <path>] [--tools <csv>] [--profile <name>] [--compat-cmd-prefix|--no-compat-cmd-prefix]
-  flow-skills doctor [--project <path>] [--strict]
-  flow-skills status [--project <path>] [--feature <name-or-path>] [--json]
-  flow-skills next [--project <path>] [--feature <name-or-path>] [--json]
-  flow-skills verify [--project <path>] [--feature <name-or-path>] [--json]
+  flow-sdd list [--json]
+  flow-sdd init [--project <path>] [--tools <csv>] [--profile <name>] [--compat-cmd-prefix|--no-compat-cmd-prefix]
+  flow-sdd update [--project <path>] [--tools <csv>] [--profile <name>] [--compat-cmd-prefix|--no-compat-cmd-prefix]
+  flow-sdd doctor [--project <path>] [--strict]
+  flow-sdd status [--project <path>] [--feature <name-or-path>] [--json]
+  flow-sdd next [--project <path>] [--feature <name-or-path>] [--json]
+  flow-sdd verify [--project <path>] [--feature <name-or-path>] [--json]
 `;
 
 export async function runCli(argv, cwd, io) {

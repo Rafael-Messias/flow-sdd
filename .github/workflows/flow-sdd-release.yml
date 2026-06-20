@@ -1,10 +1,10 @@
-name: flow-skills-release
+name: flow-sdd-release
 
 on:
   workflow_dispatch:
   push:
     tags:
-      - "flow-skills-v*"
+      - "flow-sdd-v*"
 
 jobs:
   validate:
@@ -35,7 +35,7 @@ jobs:
         run: npm pack
 
   publish:
-    if: startsWith(github.ref, 'refs/tags/flow-skills-v')
+    if: startsWith(github.ref, 'refs/tags/flow-sdd-v')
     needs: validate
     runs-on: ubuntu-latest
     permissions:

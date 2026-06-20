@@ -425,7 +425,7 @@ provider_ref:
 }
 
 async function makeTempProjectRoot() {
-  return fs.mkdtemp(path.join(os.tmpdir(), "flow-skills-"));
+  return fs.mkdtemp(path.join(os.tmpdir(), "flow-sdd-"));
 }
 
 function createIo() {

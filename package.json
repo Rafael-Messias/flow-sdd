@@ -1,11 +1,11 @@
 {
-  "name": "@padroes-dev-ia/flow-skills",
+  "name": "flow-sdd",
   "version": "0.1.0",
   "description": "Installable flow-* skills package with project-local sync for Codex and Claude style workflows.",
   "author": "Rafael Messias",
   "type": "module",
   "bin": {
-    "flow-skills": "./bin/flow-skills.js"
+    "flow-sdd": "./bin/flow-sdd.js"
   },
   "files": [
     "README.md",

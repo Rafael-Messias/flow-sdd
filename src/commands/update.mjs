@@ -25,7 +25,7 @@ export async function runUpdate({ options, context }) {
     config: written.config
   });
 
-  context.io.stdout.write(`Updated flow-skills in ${projectRoot}\n`);
+  context.io.stdout.write(`Updated flow-sdd in ${projectRoot}\n`);
   context.io.stdout.write(`Tools: ${result.config.tools.join(", ")}\n`);
   return 0;
 }
