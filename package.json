@@ -1,6 +1,6 @@
 {
   "name": "flow-sdd",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Installable flow-* skills package with project-local sync for Codex and Claude style workflows.",
   "author": "Rafael Messias",
   "type": "module",
