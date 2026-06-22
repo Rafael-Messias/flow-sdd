@@ -48,7 +48,7 @@ Entradas opcionais:
    - Inclua testes correspondentes quando comportamento mudar ou regressao for possivel.
    - Inclua arquivos de wiring/config/documentacao apenas quando forem necessarios para resolver uma issue.
    - Se precisar tocar arquivo fora do escopo primario, faca a menor mudanca e registre o motivo em `## Triage`.
-   - Nao use `<batch_scope>`; se existir algum arquivo de escopo legado, trate-o apenas como informacao auxiliar.
+   - Nao use `<batch_scope>`; se existir algum arquivo de escopo complementar, trate-o apenas como informacao auxiliar.
 
 4. Leia e faca triagem das issues.
    - Atualize `status` de `pending` para `valid` ou `invalid`.

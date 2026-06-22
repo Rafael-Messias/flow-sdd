@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>flow-sdd | Spec-Driven Development for Real Repositories</title>
+  <style>
+    :root {
+      --bg: #08111a;
+      --bg-soft: #0c1722;
+      --panel: rgba(11, 23, 34, 0.88);
+      --panel-strong: rgba(8, 17, 26, 0.96);
+      --line: rgba(99, 179, 237, 0.16);
+      --line-strong: rgba(125, 211, 252, 0.32);
+      --text: #d8e6f2;
+      --muted: #8ea3b5;
+      --accent: #7dd3fc;
+      --accent-2: #6ee7b7;
+      --danger: #fca5a5;
+      --glow: 0 0 24px rgba(125, 211, 252, 0.12);
+      --radius: 18px;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      --mono: "IBM Plex Mono", "Fira Code", "Consolas", monospace;
+      --sans: "Segoe UI", "Helvetica Neue", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 30%),
+        linear-gradient(180deg, #071019 0%, #08111a 42%, #050c13 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(125, 211, 252, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(125, 211, 252, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.86), transparent 94%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 64px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(8, 17, 26, 0.72);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--glow);
+    }
+
+    .brand {
+      font-family: var(--mono);
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-copy {
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -100px auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(110, 231, 183, 0.12), transparent 68%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      background: rgba(125, 211, 252, 0.08);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 18px 0 14px;
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-copy p {
+      margin: 0 0 22px;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line-strong);
+      background: rgba(125, 211, 252, 0.08);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, rgba(125, 211, 252, 0.18), rgba(110, 231, 183, 0.16));
+      box-shadow: var(--glow);
+    }
+
+    .signal-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .signal {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+      font-family: var(--mono);
+    }
+
+    .terminal {
+      padding: 22px;
+      background: var(--panel-strong);
+    }
+
+    .terminal-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font-family: var(--mono);
+      color: #c6f1ff;
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+
+    .card {
+      padding: 24px;
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 1.45rem;
+      letter-spacing: -0.03em;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      font-family: var(--mono);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .metric strong {
+      font-size: 1.7rem;
+      letter-spacing: -0.04em;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .code-block {
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(3, 10, 16, 0.8);
+      overflow: auto;
+    }
+
+    .footer {
+      margin-top: 28px;
+      padding: 20px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .footer code,
+    code {
+      font-family: var(--mono);
+      color: var(--accent-2);
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .span-4,
+      .span-6,
+      .span-8 {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100% - 20px, 1180px);
+      }
+
+      .topbar {
+        border-radius: 18px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hero-copy,
+      .terminal,
+      .card {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar panel">
+      <div class="brand">flow-sdd</div>
+      <div class="nav">
+        <a href="#why">Why it helps</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#workspace">Workspace</a>
+        <a href="#install">Install</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-copy panel">
+        <div class="eyebrow">Spec-Driven Development for shipping teams</div>
+        <h1>Turn feature work into a governed delivery flow.</h1>
+        <p>
+          <strong>flow-sdd</strong> is an installable npm package that brings a structured
+          <strong>PRD -> TechSpec -> Tasks -> Review -> Validation</strong> workflow into real repositories.
+          It works for single-project delivery and for multi-project features that span APIs, workers,
+          frontends, databases, and supporting services.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="https://www.npmjs.com/package/flow-sdd" target="_blank" rel="noreferrer">View npm package</a>
+          <a class="btn" href="https://github.com/&lt;your-org&gt;/flow-sdd" target="_blank" rel="noreferrer">GitHub repository</a>
+        </div>
+        <div class="signal-row">
+          <div class="signal">installable npm package</div>
+          <div class="signal">single + multi-project</div>
+          <div class="signal">Codex + Claude + custom targets</div>
+          <div class="signal">task-aware CLI introspection</div>
+        </div>
+      </div>
+
+      <div class="terminal panel">
+        <div class="terminal-bar">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <pre><span style="color:#6ee7b7">$</span> npm i -D flow-sdd
+<span style="color:#6ee7b7">$</span> npx flow-sdd init --project . --tools codex,claude --profile strict
+<span style="color:#6ee7b7">$</span> npx flow-sdd status --project . --feature shopping-cart
+
+Project: /repo
+Workspace mode: single
+Feature: shopping-cart
+Phase: ready-to-run
+Next step: flow-run-task shopping-cart task_02
+
+<span style="color:#6ee7b7">$</span> npx flow-sdd status --project . --feature billing-orchestration
+
+Project: /workspace
+Workspace mode: multi-project
+Feature: billing-orchestration
+Projects:
+- database: completed 1
+- carts-api: pending 1
+- storefront: pending 1
+- jobs: blocked 1
+        </pre>
+      </div>
+    </section>
+
+    <section id="why" class="grid">
+      <div class="card panel span-8">
+        <h2>What it helps developers do</h2>
+        <ul>
+          <li>Plan features before implementation pressure collapses the scope.</li>
+          <li>Keep business intent, technical design, tasks, review, and validation aligned.</li>
+          <li>Stop guessing the next step during long feature work.</li>
+          <li>Coordinate work that spans more than one repo or service.</li>
+          <li>Install the same workflow into more than one LLM client without rewriting prompts.</li>
+        </ul>
+      </div>
+      <div class="card panel span-4">
+        <h2>What it avoids</h2>
+        <ul>
+          <li>untracked feature drift</li>
+          <li>tasks detached from the spec</li>
+          <li>review without artifact context</li>
+          <li>multi-service rollout with no release notes</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="workflow" class="grid" style="margin-top: 24px;">
+      <div class="card panel span-6">
+        <h3>Artifact chain</h3>
+        <h2>Designed around SDD, not ad hoc prompts</h2>
+        <div class="code-block">
+          <pre>Explore
+  -> PRD
+  -> TechSpec
+  -> Tasks
+  -> Execute
+  -> Review
+  -> Fix
+  -> Validation</pre>
+        </div>
+      </div>
+      <div class="card panel span-6">
+        <h3>CLI visibility</h3>
+        <h2>Know what is blocked, what is next, and what is missing</h2>
+        <ul>
+          <li><code>status</code> inspects artifacts, phases, grouped project progress, and blockers.</li>
+          <li><code>next</code> resolves the next executable task and avoids dependency-blocked work.</li>
+          <li><code>verify</code> audits completeness, correctness, and coherence.</li>
+          <li><code>impact</code>, <code>projects</code>, and <code>contracts</code> support multi-project coordination.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="workspace" class="grid" style="margin-top: 24px;">
+      <div class="card panel span-6">
+        <h3>Single project</h3>
+        <h2>Works with the simple case by default</h2>
+        <div class="code-block">
+          <pre>workspace:
+  mode: single
+
+tasks/
+  shopping-cart/
+    _prd.md
+    _techspec.md
+    _tasks.md
+    task_01.md</pre>
+        </div>
+      </div>
+      <div class="card panel span-6">
+        <h3>Multi-project</h3>
+        <h2>Also handles cross-repository features</h2>
+        <div class="code-block">
+          <pre>workspace:
+  mode: multi-project
+
+projects:
+  storefront:
+    path: ../storefront
+    type: frontend
+  carts-api:
+    path: ../carts-api
+    type: api
+  database:
+    path: ../database
+    type: database</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" style="margin-top: 24px;">
+      <div class="card panel span-4">
+        <h3>Multi-LLM</h3>
+        <h2>Use one workflow across clients</h2>
+        <ul>
+          <li>Codex via <code>.agents/skills/</code></li>
+          <li>Claude via <code>.claude/skills/</code></li>
+          <li>Gemini, Cursor, or custom tools via configurable <code>toolTargets</code></li>
+        </ul>
+      </div>
+      <div class="card panel span-4">
+        <h3>Release-aware</h3>
+        <h2>Better for real production change</h2>
+        <ul>
+          <li><code>_impact-map.md</code> for affected projects</li>
+          <li><code>_contracts.md</code> for service boundaries</li>
+          <li><code>_release-plan.md</code> for deployment order</li>
+          <li><code>_rollback-plan.md</code> for mitigation and recovery</li>
+        </ul>
+      </div>
+      <div class="card panel span-4">
+        <h3>Developer leverage</h3>
+        <h2>Why teams keep using it</h2>
+        <div class="stack">
+          <div class="metric">
+            <strong>1 source of truth</strong>
+            <span class="muted">Specs, tasks, and review stay connected.</span>
+          </div>
+          <div class="metric">
+            <strong>Less drift</strong>
+            <span class="muted">The workflow can tell you when artifacts disagree.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" class="grid" style="margin-top: 24px;">
+      <div class="card panel span-12">
+        <h3>Install path</h3>
+        <h2>Start from npm, then initialize in the repository</h2>
+        <div class="code-block">
+          <pre>npm package
+https://www.npmjs.com/package/flow-sdd
+
+install
+npm i -D flow-sdd
+
+initialize
+npx flow-sdd init --project . --tools codex,claude --profile strict</pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer panel">
+      <strong>Note:</strong> the GitHub link in this file is a placeholder.
+      Replace <code>https://github.com/&lt;your-org&gt;/flow-sdd</code> with the final repository URL before publishing.
+    </div>
+  </div>
+</body>
+</html>

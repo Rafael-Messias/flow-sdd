@@ -9,7 +9,8 @@ export async function runVerify({ options, context }) {
   const config = normalizeProjectConfig(loadedConfig ?? {});
   const verification = await collectWorkflowVerification({
     projectRoot,
-    feature: options.feature
+    feature: options.feature,
+    config
   });
 
   const payload = {
@@ -36,6 +37,7 @@ function renderHumanVerify(payload, stdout) {
   stdout.write(`Config file: ${payload.config.present ? "present" : "missing (using defaults)"}\n`);
   stdout.write(`Profile: ${payload.config.profile}\n`);
   stdout.write(`Tools: ${payload.config.tools.join(", ")}\n`);
+  stdout.write(`Workspace mode: ${payload.workspace.mode}\n`);
   stdout.write(`Verdict: ${payload.verdict}\n`);
 
   if (payload.mode === "empty") {
@@ -49,7 +51,7 @@ function renderHumanVerify(payload, stdout) {
     for (const feature of payload.features) {
       stdout.write(`- ${feature.name}: ${feature.verdict} (${feature.phase})\n`);
       stdout.write(`  next: ${formatNextStep(feature.nextStep)}\n`);
-      stdout.write(`  findings: completeness ${feature.counts.completeness}, correctness ${feature.counts.correctness}, coherence ${feature.counts.coherence}\n`);
+      stdout.write(`  findings: completeness ${feature.counts.completeness}, correctness ${feature.counts.correctness}, coherence ${feature.counts.coherence}, warnings ${feature.counts.warnings}\n`);
     }
     stdout.write(`\nRecommendation: ${formatNextStep(payload.nextStep)}\n`);
     return;
@@ -65,9 +67,17 @@ function renderFeature(feature, stdout) {
   stdout.write(`Next step: ${formatNextStep(feature.nextStep)}\n`);
   stdout.write(`Verdict: ${feature.verdict}\n`);
 
+  if (feature.projects.items.length > 0) {
+    stdout.write("\nProjects\n");
+    for (const project of feature.projects.items) {
+      stdout.write(`- ${project.name}: completed ${project.counts.completed}, pending ${project.counts.pending}, in progress ${project.counts.inProgress}, blocked ${project.counts.blocked}\n`);
+    }
+  }
+
   renderCategory("Completeness", feature.findings.completeness, stdout);
   renderCategory("Correctness", feature.findings.correctness, stdout);
   renderCategory("Coherence", feature.findings.coherence, stdout);
+  renderCategory("Warnings", feature.findings.warnings, stdout);
 }
 
 function renderCategory(label, entries, stdout) {

@@ -52,6 +52,37 @@ It also checks:
 - mismatches between `_tasks.md` and `task_NN.md`
 - unresolved review issues
 - missing file references inside workflow artifacts
+- invalid multi-project ownership or missing configured projects
+
+## `next` does not suggest the task I expected
+
+`flow-sdd next` only suggests executable tasks.
+
+It will avoid:
+
+- tasks blocked by unfinished dependencies
+- tasks inside dependency cycles
+- tasks without valid `project` metadata in multi-project mode
+
+Use:
+
+```bash
+npx flow-sdd status --project . --feature <name>
+npx flow-sdd projects --project . --feature <name>
+```
+
+to inspect the blocking reason.
+
+## Multi-project artifacts are being reported as missing
+
+For multi-project features, `verify` may expect or recommend:
+
+- `_impact-map.md`
+- `_contracts.md`
+- `_release-plan.md`
+- `_rollback-plan.md`
+
+Generate or update those artifacts when the feature spans multiple services, coordinated release steps, database work, or critical integrations.
 
 ## The installed skill does not reflect project rules
 

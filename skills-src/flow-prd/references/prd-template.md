@@ -40,6 +40,14 @@ Funcionalidades agrupadas por prioridade:
 - Requisitos funcionais
 - Interações entre funcionalidades
 
+## Sistemas ou Projetos Impactados (Opcional)
+
+Use esta seção quando a entrega atravessar mais de um projeto, repositório ou serviço.
+
+- Projeto ou sistema impactado
+- Papel de negócio ou responsabilidade
+- Dependências relevantes entre sistemas
+
 ## Experiência e Fluxos Impactados
 
 Jornada e fluxos criados, alterados ou afetados por esta entrega:

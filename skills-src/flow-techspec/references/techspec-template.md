@@ -66,6 +66,15 @@ Sistemas externos e fronteiras:
 | ------------ | ---------------------------- | ----------------- | --------------- |
 | [componente] | [novo/modificado/depreciado] | [mudança e risco] | [ação]          |
 
+## Coordenação Multi-Project (Opcional)
+
+Use esta seção quando a feature atravessar mais de um projeto, repositório ou serviço.
+
+- Projetos impactados e responsabilidade técnica de cada um
+- Dependências cross-project e ordem de implementação
+- Contratos que devem existir ou evoluir entre serviços
+- Artefatos auxiliares esperados em `tasks/<feature>/`, como `_impact-map.md`, `_contracts.md`, `_release-plan.md` e `_rollback-plan.md`
+
 ## Estratégia de Entrega e Ativação (Opcional)
 
 Use esta seção quando a implementação exigir cuidado operacional além de um deploy simples.

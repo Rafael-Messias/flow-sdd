@@ -9,7 +9,8 @@ export async function runNext({ options, context }) {
   const config = normalizeProjectConfig(loadedConfig ?? {});
   const status = await collectWorkflowStatus({
     projectRoot,
-    feature: options.feature
+    feature: options.feature,
+    config
   });
 
   const payload = buildPayload(projectRoot, loadedConfig, config, status);
@@ -24,51 +25,50 @@ export async function runNext({ options, context }) {
 }
 
 function buildPayload(projectRoot, loadedConfig, config, status) {
+  const base = {
+    projectRoot,
+    workspace: status.workspace,
+    config: {
+      present: Boolean(loadedConfig),
+      profile: config.profile,
+      tools: config.tools
+    }
+  };
+
   if (status.mode === "feature") {
     return {
+      ...base,
       mode: "feature",
-      projectRoot,
-      config: {
-        present: Boolean(loadedConfig),
-        profile: config.profile,
-        tools: config.tools
-      },
       feature: {
         name: status.feature.name,
         directory: status.feature.directory,
         phase: status.feature.phase
       },
       nextStep: status.feature.nextStep,
-      blockers: status.feature.blockers
+      blockers: status.feature.blockers,
+      warnings: status.feature.warnings,
+      blockedTasks: status.feature.tasks.execution.blockedTasks
     };
   }
 
   if (status.mode === "workspace") {
     return {
+      ...base,
       mode: "workspace",
-      projectRoot,
-      config: {
-        present: Boolean(loadedConfig),
-        profile: config.profile,
-        tools: config.tools
-      },
       nextStep: status.nextStep,
       options: status.features.map((feature) => ({
         name: feature.name,
+        mode: feature.mode,
         phase: feature.phase,
-        nextStep: feature.nextStep
+        nextStep: feature.nextStep,
+        projects: feature.projects.items
       }))
     };
   }
 
   return {
+    ...base,
     mode: "empty",
-    projectRoot,
-    config: {
-      present: Boolean(loadedConfig),
-      profile: config.profile,
-      tools: config.tools
-    },
     nextStep: status.nextStep,
     options: []
   };
@@ -79,6 +79,7 @@ function renderHumanNext(payload, stdout) {
   stdout.write(`Config file: ${payload.config.present ? "present" : "missing (using defaults)"}\n`);
   stdout.write(`Profile: ${payload.config.profile}\n`);
   stdout.write(`Tools: ${payload.config.tools.join(", ")}\n`);
+  stdout.write(`Workspace mode: ${payload.workspace.mode}\n`);
 
   if (payload.mode === "feature") {
     stdout.write(`\nFeature: ${payload.feature.name}\n`);
@@ -93,6 +94,20 @@ function renderHumanNext(payload, stdout) {
       }
     }
 
+    if (payload.blockedTasks.length > 0) {
+      stdout.write("\nBlocked by dependencies\n");
+      for (const task of payload.blockedTasks) {
+        stdout.write(`- ${task.id} (${task.project}): ${task.blockedReasons.join("; ")}\n`);
+      }
+    }
+
+    if (payload.warnings.length > 0) {
+      stdout.write("\nWarnings\n");
+      for (const warning of payload.warnings) {
+        stdout.write(`- ${warning}\n`);
+      }
+    }
+
     return;
   }
 
@@ -101,6 +116,9 @@ function renderHumanNext(payload, stdout) {
     stdout.write("\nOptions\n");
     for (const option of payload.options) {
       stdout.write(`- ${option.name}: ${option.phase} -> ${formatNextStep(option.nextStep)}\n`);
+      if (option.mode === "multi-project") {
+        stdout.write(`  projects: ${option.projects.map((project) => `${project.name} [done ${project.counts.completed}, pending ${project.counts.pending}, blocked ${project.counts.blocked}]`).join("; ")}\n`);
+      }
     }
     stdout.write("Use --feature <name> to lock the recommendation to a single workflow.\n");
     return;

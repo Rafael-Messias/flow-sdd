@@ -40,6 +40,7 @@ Use a ferramenta interativa de perguntas quando disponível. Se não existir, fa
 1. Colete contexto.
    - Verifique `tasks/<nome>/_prd.md`; se existir, leia como entrada primária.
    - Se não houver PRD, peça descrição do que precisa de especificação técnica.
+   - Leia `flow.config.yaml` quando existir para entender se o workspace é `single` ou `multi-project`.
    - Leia ADRs em `tasks/<nome>/adrs/`.
    - Crie `tasks/<nome>/adrs/` se necessário.
    - Explore o código para padrões arquiteturais, componentes, dependências e stack.
@@ -65,8 +66,10 @@ Use a ferramenta interativa de perguntas quando disponível. Se não existir, fa
    - Mesmo funcionalidades simples exigem pelo menos um ADR com a abordagem técnica principal e alternativas rejeitadas.
    - Aplique YAGNI: não proponha pacotes, diretórios ou abstrações sem necessidade.
    - Mapeie todo objetivo e história do PRD para um componente técnico.
+   - Em multi-project, mapeie explicitamente quais projetos, serviços ou repositórios serão impactados e quais contratos existirão entre eles.
    - Referencie seções do PRD sem duplicar contexto de negócio.
    - Se o PRD trouxer estrategia de entrega, traduza isso tecnicamente em ativacao, rollout, compatibilidade, migracao e rollback. Se nao trouxer, trate a entrega como release unico simples e registre isso apenas se agregar clareza.
+   - Quando a entrega envolver mais de um projeto, antecipe os artefatos auxiliares esperados em `tasks/<nome>/`, como `_impact-map.md`, `_contracts.md`, `_release-plan.md` e `_rollback-plan.md`.
    - Inclua exemplos de código só para interfaces centrais, no máximo 20 linhas cada.
    - A seção de Sequenciamento deve ter ordem numerada, com dependências explícitas após o primeiro passo.
    - Escreva todo conteúdo gerado no idioma explicitamente pedido pelo usuário.

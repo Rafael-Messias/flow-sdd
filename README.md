@@ -4,36 +4,31 @@ Installable `flow-*` skills package for a governed Spec-Driven Development workf
 
 Created and maintained by Rafael Messias.
 
-## SDD Workflow
+## SDD First
 
-`flow-*` is not just a bag of prompts. It is a governed SDD process with an explicit artifact chain:
+`flow-sdd` is an SDD workflow, not a loose prompt bundle.
+
+Artifact chain:
 
 `Explore -> PRD -> TechSpec -> Tasks -> Execute -> Review -> Fix -> Validation`
 
-There is one intentional optional bridge in that chain:
+Operational loop:
 
-- after `flow-tasks`, `flow-plan` can offer a `preliminary` validation draft
-- after execution and a clean review, `flow-run` can offer the final validation plan
+- plan before implementation
+- keep artifacts in sync with code
+- review and remediate explicitly
+- separate preliminary validation from final validation
+- verify artifact coherence before claiming completion
 
-That means the package is opinionated about:
+## What It Adds
 
-- planning before implementation
-- structured drafting for adjacent repo documents
-- artifact-driven execution
-- explicit review and remediation loops
-- separate draft-vs-final validation planning
-- verification before completion claims
-- workflow introspection through `status`, `next`, and `verify`
-
-## What it does
-
-- keeps a canonical skill source tree under `skills-src/`
-- installs managed skill directories into built-in targets such as `.agents/skills/` and `.claude/skills/`
-- supports canonical names and UX aliases
-- supports guided drafting for repository documents outside the core SDD artifact chain
-- exposes lifecycle commands for install, update, doctoring, status, next-step resolution, and workflow verification
-- injects project-local context and rules from `flow.config.yaml` into installed skills
-- supports extra agent/LLM targets through configurable `toolTargets`
+- installable `flow-*` skills package for Codex, Claude, and custom LLM/agent targets
+- project-local sync driven by `flow.config.yaml`
+- single-project and multi-project workspace support
+- CLI introspection for `status`, `next`, `verify`, `impact`, `projects`, and `contracts`
+- task-aware next-step resolution with dependency checks
+- multi-project verification for project ownership, cross-project dependencies, and recommended release artifacts
+- optional UX aliases such as `plan`, `review`, and `verify`
 
 ## Install
 
@@ -41,74 +36,127 @@ That means the package is opinionated about:
 npm i -D flow-sdd
 ```
 
+Initialize in a repository:
+
+```bash
+npx flow-sdd init --project . --tools codex,claude --profile strict
+```
+
 ## CLI
 
 ```bash
 npx flow-sdd list --json
-npx flow-sdd init --project /path/to/project --tools codex,claude --profile strict
-npx flow-sdd update --project /path/to/project
-npx flow-sdd doctor --project /path/to/project --strict
-npx flow-sdd status --project /path/to/project --feature my-feature
-npx flow-sdd next --project /path/to/project --feature my-feature
-npx flow-sdd verify --project /path/to/project --feature my-feature
+npx flow-sdd init --project . --tools codex,claude --profile strict
+npx flow-sdd update --project .
+npx flow-sdd doctor --project . --strict
+npx flow-sdd status --project . --feature shopping-cart
+npx flow-sdd next --project . --feature shopping-cart
+npx flow-sdd verify --project . --feature shopping-cart
+npx flow-sdd impact --project . --feature shopping-cart
+npx flow-sdd projects --project . --feature shopping-cart
+npx flow-sdd contracts --project . --feature shopping-cart
 ```
 
-## Commands
+## Workspace Modes
 
-`list`
+### Single project
 
-- lists canonical skills, profiles, and tool targets
-- supports `--json`
+Default mode. Existing repositories do not need extra metadata.
 
-`init`
+```yaml
+profile: strict
+defaultLanguage: en-US
+workspace:
+  mode: single
+```
 
-- creates `flow.config.yaml`
-- installs managed skills for the selected tools
-- creates the project root when it does not exist yet
+Typical structure:
 
-`update`
+```text
+tasks/
+  shopping-cart/
+    _prd.md
+    _techspec.md
+    _tasks.md
+    task_01.md
+    task_02.md
+```
 
-- re-applies the current config
-- removes managed skill directories that no longer belong to the active profile
-- refreshes project overlay sections generated from config
+### Multi-project
 
-`doctor`
+Use one workflow feature across multiple repositories or services.
 
-- validates the managed install state for the active config
-- reports missing or unexpected managed skill directories
-- returns non-zero with `--strict`
+```yaml
+profile: strict
+defaultLanguage: en-US
 
-`status`
+workspace:
+  mode: multi-project
 
-- inspects `tasks/`
-- detects current workflow phase, artifacts, blockers, and next step
-- supports workspace view and feature view
+projects:
+  storefront:
+    path: ../storefront
+    type: frontend
+    stack: nextjs
+  catalog-api:
+    path: ../catalog-api
+    type: api
+    stack: node
+  carts-api:
+    path: ../carts-api
+    type: api
+    stack: node
+  database:
+    path: ../database
+    type: database
+    stack: postgres
+```
 
-`next`
+Recommended feature structure:
 
-- resolves the recommended next action from the current workflow state
-- useful for automation and agent routing
+```text
+tasks/
+  shopping-cart/
+    _prd.md
+    _techspec.md
+    _tasks.md
+    _impact-map.md
+    _contracts.md
+    _release-plan.md
+    _rollback-plan.md
+    task_001.md
+    task_002.md
+    task_003.md
+```
 
-`verify`
+Task files may include multi-project metadata:
 
-- audits workflow artifacts by `completeness`, `correctness`, and `coherence`
-- complements `flow-review`; it does not replace review
-- returns non-zero when verification fails
+```markdown
+---
+id: task_002
+title: Implement cart API endpoint
+status: pending
+type: backend
+complexity: medium
+project: carts-api
+repository: ../carts-api
+area: backend
+dependencies:
+  - task_001
+---
+```
 
 ## Example: Shopping Cart Feature
 
-### Quickstart
-
-Bootstrap the package in your repository:
+### 1. Bootstrap the repo
 
 ```bash
 npm i -D flow-sdd
-npx flow-sdd init --project . --tools codex,claude --profile strict
+npx flow-sdd init --project . --tools codex --profile strict
 npx flow-sdd status --project .
-npx flow-sdd next --project .
 ```
 
-Then, in your LLM client, start planning a shopping cart feature for a product catalog site:
+### 2. Plan the feature in the LLM client
 
 ```text
 Use `flow-plan` for a feature named `shopping-cart`.
@@ -123,54 +171,22 @@ Context:
 Generate the PRD, TechSpec, task breakdown, and a preliminary validation draft.
 ```
 
-Expected planning artifacts:
+Expected artifacts:
 
 - `tasks/shopping-cart/_prd.md`
 - `tasks/shopping-cart/_techspec.md`
 - `tasks/shopping-cart/_tasks.md`
 - `tasks/shopping-cart/task_*.md`
 
-### End-to-end walkthrough
-
-1. Initialize the workflow in the repository.
-
-```bash
-npx flow-sdd init --project . --tools codex,claude --profile strict
-```
-
-2. Plan the feature in the LLM client.
-
-```text
-Use `flow-plan` for a feature named `shopping-cart`.
-
-Business goal:
-- let a user build a cart while browsing a product catalog
-
-Scope:
-- add to cart from product list and product detail pages
-- remove item from cart
-- change item quantity
-- show subtotal and total item count
-- show empty-cart state
-- block quantities above available stock
-
-Out of scope:
-- checkout
-- payment
-- coupon system
-- account-specific saved carts
-
-Produce the planning artifacts end to end.
-```
-
-Optional checkpoint after planning:
+### 3. Inspect the plan from the terminal
 
 ```bash
 npx flow-sdd status --project . --feature shopping-cart
+npx flow-sdd next --project . --feature shopping-cart
 npx flow-sdd verify --project . --feature shopping-cart
 ```
 
-3. Execute the planned work in the LLM client.
+### 4. Execute in the LLM client
 
 ```text
 Use `flow-run` for feature `shopping-cart`.
@@ -178,14 +194,15 @@ Use `flow-run` for feature `shopping-cart`.
 Implement the planned tasks end to end, keep task tracking updated, and stop when the feature is ready for structured review.
 ```
 
-If you want to inspect progress from the terminal while work is running:
+When you want to execute a single next task explicitly:
 
-```bash
-npx flow-sdd status --project . --feature shopping-cart
-npx flow-sdd next --project . --feature shopping-cart
+```text
+Use `flow-run-task` for feature `shopping-cart` and task `task_02`.
+
+Implement only this task, update task tracking, and stop after verification.
 ```
 
-4. Review the implementation in the LLM client.
+### 5. Review and fix
 
 ```text
 Use `flow-review` for feature `shopping-cart`.
@@ -193,7 +210,7 @@ Use `flow-review` for feature `shopping-cart`.
 Review the implementation against the PRD, TechSpec, task files, and current code. Create a review round with concrete issues if problems are found.
 ```
 
-If the review opens issues:
+If issues exist:
 
 ```text
 Use `flow-fix-review` for feature `shopping-cart`.
@@ -201,7 +218,7 @@ Use `flow-fix-review` for feature `shopping-cart`.
 Resolve the latest review issues, update the review files, and verify the result before closure.
 ```
 
-5. Generate the final validation package in the LLM client.
+### 6. Final validation
 
 ```text
 Use `flow-validation-plan` for feature `shopping-cart`.
@@ -210,26 +227,53 @@ Generate the final validation package with scenarios for:
 - add to cart from listing page
 - add to cart from product detail page
 - remove item
-- change quantity
+- change item quantity
 - subtotal update
 - empty-cart state
 - stock-limit rejection
 ```
 
-6. Run a final audit from the terminal.
+### 7. Final audit
 
 ```bash
 npx flow-sdd status --project . --feature shopping-cart
 npx flow-sdd verify --project . --feature shopping-cart
 ```
 
-Typical end state for this example:
+## Command Behavior
 
-- planning artifacts exist under `tasks/shopping-cart/`
-- implementation tasks are completed
-- at least one review round exists
-- review issues are resolved or explicitly tracked
-- final validation artifacts are ready for manual or hybrid QA
+`status`
+
+- detects the current workflow phase
+- shows artifacts, blockers, dependency-blocked tasks, and next step
+- groups work by project in multi-project mode
+
+`next`
+
+- recommends the next executable task
+- does not suggest dependency-blocked tasks
+- includes project ownership in multi-project mode
+
+`verify`
+
+- audits workflow artifacts by `completeness`, `correctness`, and `coherence`
+- validates multi-project task ownership and configured projects
+- flags cross-project dependencies and recommended release artifacts
+
+`impact`
+
+- reads `_impact-map.md` when present
+- falls back to derived impacted-project data from task metadata
+
+`projects`
+
+- groups workflow progress by project
+- useful for orchestration-heavy features
+
+`contracts`
+
+- checks `_contracts.md` for service contract sections
+- useful when APIs, workers, or services integrate across projects
 
 ## Profiles
 
@@ -237,97 +281,18 @@ Typical end state for this example:
 
 - full governed workflow
 - installs exploration, generic docs, planning, execution, review, verification, validation, and memory skills
-- enables UX aliases
 
 `quick`
 
 - lean workflow for faster adoption
 - installs exploration, planning, execution, review, and verification skills
-- enables UX aliases
 
 `workspace`
 
-- planning-centric workspace profile
+- planning-centric profile
 - installs exploration, generic docs, planning, task design, verification, and memory skills
-- useful when the repo is still in planning or coordination mode
 
-## Installed names
-
-Canonical skills include:
-
-- `flow-explore`
-- `flow-doc-workshop`
-- `flow-plan`
-- `flow-prd`
-- `flow-techspec`
-- `flow-tasks`
-- `flow-validate-tasks`
-- `flow-run-task`
-- `flow-run`
-- `flow-review`
-- `flow-fix-review`
-- `flow-verify`
-- `flow-validation-plan`
-- `flow-memory`
-
-UX aliases include:
-
-- `explore`
-- `docs`
-- `plan`
-- `prd`
-- `propose`
-- `techspec`
-- `design`
-- `tasks`
-- `breakdown`
-- `run`
-- `review`
-- `fix-review`
-- `verify`
-
-## Config
-
-`flow.config.yaml`
-
-```yaml
-profile: quick
-tools:
-  - codex
-skills:
-  - flow-explore
-  - flow-plan
-  - flow-prd
-  - flow-techspec
-  - flow-tasks
-  - flow-validate-tasks
-  - flow-run-task
-  - flow-run
-  - flow-review
-  - flow-fix-review
-  - flow-verify
-delivery: skills
-aliases: true
-defaultLanguage: pt-BR
-context: |
-  API monolith with strict change control and feature-level reviews.
-rules:
-  review:
-    - Compare task files against _tasks.md before review.
-    - Prefer flow-sdd verify before flow-review.
-  testing:
-    - Run focused tests before broad suites.
-```
-
-Notes:
-
-- `skills` is optional; when omitted, the active profile decides the set
-- `defaultLanguage` defines the project-wide fallback language for generated artifacts; an explicit user request still wins
-- `context` and `rules` are injected into installed `SKILL.md` files as a managed overlay section
-- built-in `tools` are `codex` and `claude`
-- extra agent/LLM targets can be added through `toolTargets`
-
-## Multi-LLM / Agent Targets
+## Targets
 
 Built-in targets:
 
@@ -347,28 +312,96 @@ toolTargets:
   cursor: .cursor/skills
 ```
 
-This is intentionally path-driven instead of convention-driven.
+This lets the same package serve more than one LLM client without hardcoding provider-specific behavior into the repo.
 
-- if a tool has an official install location in your repo, point to it explicitly
-- if a tool uses a different shape, adjust the path without changing the package code
-- this keeps `flow-sdd` extensible beyond Codex and Claude without hardcoding fragile assumptions
+## Config
 
-## Output targets
+`flow.config.yaml`
 
-- `codex` -> `.agents/skills/`
-- `claude` -> `.claude/skills/`
-- custom targets -> configured via `toolTargets`
+```yaml
+profile: strict
+tools:
+  - codex
+skills:
+  - flow-explore
+  - flow-plan
+  - flow-prd
+  - flow-techspec
+  - flow-tasks
+  - flow-validate-tasks
+  - flow-run-task
+  - flow-run
+  - flow-review
+  - flow-fix-review
+  - flow-verify
+delivery: skills
+aliases: true
+defaultLanguage: en-US
+workspace:
+  mode: single
+projects: {}
+context: |
+  Product catalog platform with strict feature-level reviews.
+rules:
+  review:
+    - Compare task files against _tasks.md before review.
+    - Prefer flow-sdd verify before flow-review.
+  testing:
+    - Run focused tests before broad suites.
+```
 
-## Verification model
+Notes:
+
+- `workspace.mode` defaults to `single`
+- `defaultLanguage` defines the fallback language for generated artifacts
+- explicit user language requests still win
+- `context` and `rules` are injected into installed `SKILL.md` files as a managed overlay
+- extra agent/LLM targets can be added through `toolTargets`
+
+## Installed Names
+
+Canonical skills:
+
+- `flow-explore`
+- `flow-doc-workshop`
+- `flow-plan`
+- `flow-prd`
+- `flow-techspec`
+- `flow-tasks`
+- `flow-validate-tasks`
+- `flow-run-task`
+- `flow-run`
+- `flow-review`
+- `flow-fix-review`
+- `flow-verify`
+- `flow-validation-plan`
+- `flow-memory`
+
+Aliases:
+
+- `explore`
+- `docs`
+- `plan`
+- `prd`
+- `propose`
+- `techspec`
+- `design`
+- `tasks`
+- `breakdown`
+- `run`
+- `review`
+- `verify`
+
+## Verification Model
 
 Use both layers:
 
-- `flow-sdd verify`: artifact and workflow alignment audit
-- `flow-verify`: installed skill that enforces fresh execution evidence before completion claims
+- `flow-sdd verify`: workflow and artifact audit
+- `flow-verify`: in-agent completion guard with fresh evidence expectations
 
 ## Generic Documents
 
-Use `flow-doc-workshop` when the repo needs a structured document outside the specialized SDD flow, for example:
+Use `flow-doc-workshop` for repository documents outside the specialized SDD chain, such as:
 
 - `README`
 - `runbook`
@@ -376,8 +409,6 @@ Use `flow-doc-workshop` when the repo needs a structured document outside the sp
 - `onboarding doc`
 - short `RFC`
 - standalone `ADR`
-
-Do not use it as a replacement for `flow-prd`, `flow-techspec`, `flow-tasks`, or `flow-validation-plan`.
 
 ## Guides
 

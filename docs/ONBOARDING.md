@@ -99,3 +99,13 @@ Use these to keep the workflow consultable:
 - `flow-sdd status --feature <name>`
 - `flow-sdd next --feature <name>`
 - `flow-sdd verify --feature <name>`
+
+## Multi-project onboarding
+
+Use this when one feature spans more than one repository or service.
+
+1. Configure `workspace.mode: multi-project` in `flow.config.yaml`.
+2. Register each impacted project under `projects`.
+3. Ask `flow-plan` or `flow-tasks` to include project ownership in task files.
+4. Use `flow-sdd projects --feature <name>` to inspect grouped progress.
+5. Use `flow-sdd impact --feature <name>` and `flow-sdd contracts --feature <name>` when the feature crosses service boundaries.

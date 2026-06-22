@@ -3,12 +3,13 @@ import path from "node:path";
 import { pathExists } from "./fs-utils.mjs";
 import { collectWorkflowStatus } from "./workflow-status.mjs";
 
-export async function collectWorkflowVerification({ projectRoot, feature }) {
-  const status = await collectWorkflowStatus({ projectRoot, feature });
+export async function collectWorkflowVerification({ projectRoot, feature, config = {} }) {
+  const status = await collectWorkflowStatus({ projectRoot, feature, config });
 
   if (status.mode === "empty") {
     return {
       mode: "empty",
+      workspace: status.workspace,
       verdict: "PASS",
       workflowRoots: status.workflowRoots,
       features: [],
@@ -20,6 +21,7 @@ export async function collectWorkflowVerification({ projectRoot, feature }) {
     const report = await verifyFeature(status.feature, projectRoot);
     return {
       mode: "feature",
+      workspace: status.workspace,
       verdict: report.verdict,
       workflowRoots: status.workflowRoots,
       feature: report
@@ -33,6 +35,7 @@ export async function collectWorkflowVerification({ projectRoot, feature }) {
 
   return {
     mode: "workspace",
+    workspace: status.workspace,
     verdict: features.every((item) => item.verdict === "PASS") ? "PASS" : "FAIL",
     workflowRoots: status.workflowRoots,
     features,
@@ -44,7 +47,8 @@ async function verifyFeature(feature, projectRoot) {
   const findings = {
     completeness: [],
     correctness: [],
-    coherence: []
+    coherence: [],
+    warnings: []
   };
   const taskMap = new Map(feature.tasks.files.map((task) => [task.id, task]));
   const masterList = feature.tasks.masterList;
@@ -72,6 +76,14 @@ async function verifyFeature(feature, projectRoot) {
 
   if (feature.tasks.total === 0) {
     findings.completeness.push("No individual task files were found.");
+  }
+
+  if (feature.mode === "multi-project" && feature.requirements.requiresImpactMap && !feature.artifacts.impactMapPresent) {
+    findings.completeness.push("Missing _impact-map.md for a multi-project feature.");
+  }
+
+  if (feature.mode === "multi-project" && feature.requirements.requiresContracts && !feature.artifacts.contractsPresent) {
+    findings.completeness.push("Missing _contracts.md for a multi-project service integration.");
   }
 
   if (feature.tasks.invalidFiles.length > 0) {
@@ -107,15 +119,24 @@ async function verifyFeature(feature, projectRoot) {
       findings.correctness.push(`${task.name} has an unsupported status value.`);
     }
 
-    for (const dependency of task.dependencies) {
-      if (!taskMap.has(dependency)) {
-        findings.coherence.push(`${task.name} depends on missing task id ${dependency}.`);
-        continue;
-      }
+    if (feature.mode === "multi-project" && task.project.name === "unassigned") {
+      findings.completeness.push(`${task.name} is missing the project field in multi-project mode.`);
+    }
 
-      if (dependency >= task.id) {
-        findings.coherence.push(`${task.name} depends on ${dependency}, which is not an earlier task id.`);
-      }
+    if (task.hasInvalidProject) {
+      findings.correctness.push(`${task.name} points to unknown project '${task.project.name}'.`);
+    }
+
+    for (const dependencyId of task.missingDependencies) {
+      findings.coherence.push(`${task.name} depends on missing task id ${dependencyId}.`);
+    }
+
+    if (task.hasCycle) {
+      findings.coherence.push(`${task.name} participates in a dependency cycle.`);
+    }
+
+    for (const dependency of task.crossProjectDependencies) {
+      findings.warnings.push(`${task.name} depends on ${dependency.dependencyId} from project ${dependency.dependencyProject}.`);
     }
 
     if (task.status === "completed") {
@@ -153,6 +174,14 @@ async function verifyFeature(feature, projectRoot) {
       if (!sameDependencies(task.dependencies, masterRow.dependencies)) {
         findings.coherence.push(`${task.name} dependencies differ between task file and _tasks.md.`);
       }
+
+      if (feature.mode === "multi-project") {
+        const taskProject = task.project.name;
+        const masterProject = masterRow.project ?? "unassigned";
+        if (taskProject !== masterProject) {
+          findings.coherence.push(`${task.name} project differs between task file and _tasks.md.`);
+        }
+      }
     }
 
     for (const row of masterList.rows) {
@@ -177,21 +206,37 @@ async function verifyFeature(feature, projectRoot) {
     }
   }
 
+  if (feature.requirements.requiresReleasePlan && !feature.artifacts.releasePlanPresent) {
+    findings.warnings.push("_release-plan.md is recommended for multi-project release orchestration.");
+  }
+
+  if (feature.requirements.requiresRollbackPlan && !feature.artifacts.rollbackPlanPresent) {
+    findings.warnings.push("_rollback-plan.md is recommended when the feature changes data or critical integrations.");
+  }
+
+  for (const warning of feature.warnings) {
+    findings.warnings.push(warning);
+  }
+
   const counts = {
     completeness: findings.completeness.length,
     correctness: findings.correctness.length,
-    coherence: findings.coherence.length
+    coherence: findings.coherence.length,
+    warnings: findings.warnings.length
   };
   const verdict = counts.completeness + counts.correctness + counts.coherence === 0 ? "PASS" : "FAIL";
 
   return {
     name: feature.name,
+    mode: feature.mode,
     directory: feature.directory,
     workflowRoot: feature.workflowRoot,
     phase: feature.phase,
     verdict,
     findings,
     counts,
+    projects: feature.projects,
+    artifacts: feature.artifacts,
     nextStep: feature.nextStep
   };
 }

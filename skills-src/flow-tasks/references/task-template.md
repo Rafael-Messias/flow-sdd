@@ -4,10 +4,14 @@ Use esta estrutura para toda tarefa individual. O arquivo deve começar com YAML
 
 ```markdown
 ---
+id: task_01
 status: pending
 title: [Título da tarefa]
 type: [frontend, backend, docs, test, infra, refactor, chore ou bugfix]
 complexity: [low, medium, high, critical]
+project: [nome-do-projeto quando aplicável]
+repository: [../repositorio ou URL quando aplicável]
+area: [frontend, backend, worker, database, api, infra ou equivalente]
 dependencies:
   - task_01
   - task_02
@@ -28,9 +32,14 @@ dependencies:
 
 <requirements>
 - [Requisito 1: requisito técnico específico]
-- [Requisito 2: por exemplo, "DEVE autenticar usuários via tokens JWT"]
+- [Requisito 2]
 - [Requisito 3]
 </requirements>
+
+## Contexto Operacional
+- Projeto responsável: [nome-do-projeto ou "default" em single-project]
+- Repositório: [caminho relativo, absoluto ou URL]
+- Área técnica: [frontend/backend/api/worker/database/etc.]
 
 ## Subtarefas
 - [ ] N.1 [Descrição da subtarefa: O QUE realizar]
@@ -53,8 +62,8 @@ Referencie a seção de implementação da TechSpec para padrões e interfaces.]
 ## Entregáveis
 - [Saída concreta 1]
 - [Saída concreta 2]
-- Testes unitários com cobertura de 80%+ **(OBRIGATÓRIO)**
-- Testes de integração para [funcionalidade] **(OBRIGATÓRIO)**
+- Testes unitários com cobertura adequada ao risco **(OBRIGATÓRIO)**
+- Testes de integração para [funcionalidade] **(OBRIGATÓRIO quando houver integração)**
 
 ## Testes
 - Testes unitários:
@@ -63,18 +72,21 @@ Referencie a seção de implementação da TechSpec para padrões e interfaces.]
   - [ ] [Bordas e limites]
 - Testes de integração:
   - [ ] [Fluxo de ponta a ponta]
-- Meta de cobertura: >=80%
-- Todos os testes devem passar
+- Validação operacional:
+  - [ ] [Logs, métricas, eventos, rollback ou verificação pós-deploy quando aplicável]
+- Todos os testes planejados devem passar
 
 ## Critérios de Sucesso
-- Todos os testes passando
-- Cobertura de testes >=80%
+- Todos os testes aplicáveis passando
+- Tracking da tarefa atualizado
 - [Resultado mensurável 1]
 - [Resultado mensurável 2]
 ```
 
 ## Diretrizes
 
+- Em `workspace.mode: single`, `project`, `repository` e `area` são opcionais.
+- Em `workspace.mode: multi-project`, tarefas executáveis devem informar `project`; `repository` e `area` são fortemente recomendados.
 - Cada tarefa deve ser implementável de forma independente quando dependências estiverem concluídas.
 - Toda tarefa deve incluir seção de Testes e itens de teste em Entregáveis.
 - Nunca crie tarefas separadas apenas para teste.

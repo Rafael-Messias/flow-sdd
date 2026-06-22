@@ -47,6 +47,8 @@ export function normalizeProjectConfig(rawConfig) {
     profile,
     tools,
     toolTargets,
+    workspace: normalizeWorkspace(rawConfig.workspace ?? DEFAULT_PROJECT_CONFIG.workspace),
+    projects: normalizeProjects(rawConfig.projects ?? DEFAULT_PROJECT_CONFIG.projects),
     skills: skills.length ? skills : [...profilePreset.skills],
     delivery: rawConfig.delivery ?? DEFAULT_PROJECT_CONFIG.delivery,
     aliases: rawConfig.aliases ?? profilePreset.aliases ?? DEFAULT_PROJECT_CONFIG.aliases,
@@ -78,6 +80,43 @@ export function validateProjectConfig(config, rawConfig = {}) {
   if (config.tools.length === 0) {
     throw new Error(`No valid tools were selected from: ${requestedTools.join(", ")}.`);
   }
+}
+
+function normalizeWorkspace(rawWorkspace) {
+  if (!rawWorkspace || typeof rawWorkspace !== "object" || Array.isArray(rawWorkspace)) {
+    return { ...DEFAULT_PROJECT_CONFIG.workspace };
+  }
+
+  return {
+    mode: rawWorkspace.mode === "multi-project" ? "multi-project" : "single"
+  };
+}
+
+function normalizeProjects(rawProjects) {
+  if (!rawProjects || typeof rawProjects !== "object" || Array.isArray(rawProjects)) {
+    return {};
+  }
+
+  const normalized = {};
+
+  for (const [name, rawProject] of Object.entries(rawProjects)) {
+    const projectName = String(name).trim();
+    if (!projectName || !rawProject || typeof rawProject !== "object" || Array.isArray(rawProject)) {
+      continue;
+    }
+
+    const pathValue = typeof rawProject.path === "string" ? rawProject.path.trim() : "";
+    const typeValue = typeof rawProject.type === "string" ? rawProject.type.trim() : "";
+    const stackValue = typeof rawProject.stack === "string" ? rawProject.stack.trim() : "";
+
+    normalized[projectName] = {
+      ...(pathValue ? { path: pathValue } : {}),
+      ...(typeValue ? { type: typeValue } : {}),
+      ...(stackValue ? { stack: stackValue } : {})
+    };
+  }
+
+  return normalized;
 }
 
 function normalizeToolTargets(rawToolTargets) {

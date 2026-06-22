@@ -64,6 +64,10 @@ export const DEFAULT_PROJECT_CONFIG = {
   profile: "strict",
   tools: ["codex", "claude"],
   toolTargets: {},
+  workspace: {
+    mode: "single"
+  },
+  projects: {},
   skills: PROFILE_PRESETS.strict.skills,
   delivery: "skills",
   aliases: PROFILE_PRESETS.strict.aliases,

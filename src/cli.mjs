@@ -1,10 +1,13 @@
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+import { runContracts } from "./commands/contracts.mjs";
 import { runDoctor } from "./commands/doctor.mjs";
+import { runImpact } from "./commands/impact.mjs";
 import { runInit } from "./commands/init.mjs";
 import { runList } from "./commands/list.mjs";
 import { runNext } from "./commands/next.mjs";
+import { runProjects } from "./commands/projects.mjs";
 import { runStatus } from "./commands/status.mjs";
 import { runUpdate } from "./commands/update.mjs";
 import { runVerify } from "./commands/verify.mjs";
@@ -19,6 +22,9 @@ Usage:
   flow-sdd status [--project <path>] [--feature <name-or-path>] [--json]
   flow-sdd next [--project <path>] [--feature <name-or-path>] [--json]
   flow-sdd verify [--project <path>] [--feature <name-or-path>] [--json]
+  flow-sdd impact [--project <path>] [--feature <name-or-path>] [--json]
+  flow-sdd projects [--project <path>] [--feature <name-or-path>] [--json]
+  flow-sdd contracts [--project <path>] [--feature <name-or-path>] [--json]
 `;
 
 export async function runCli(argv, cwd, io) {
@@ -45,6 +51,12 @@ export async function runCli(argv, cwd, io) {
     case "verify":
     case "flow-verify":
       return runVerify({ options, context });
+    case "impact":
+      return runImpact({ options, context });
+    case "projects":
+      return runProjects({ options, context });
+    case "contracts":
+      return runContracts({ options, context });
     case "help":
     case "--help":
     case "-h":

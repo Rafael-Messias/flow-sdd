@@ -44,6 +44,7 @@ Crie uma tarefa para cada etapa e conclua em ordem:
 1. Determine o nome do projeto e o diretório de trabalho.
    - Derive o slug a partir do nome informado pelo usuário.
    - Use `tasks/<slug>/` como diretório alvo.
+   - Leia `flow.config.yaml` quando existir para entender se o workspace é `single` ou `multi-project`.
    - Se `_idea.md` existir no diretório alvo, leia como contexto primário.
    - Se `_prd.md` já existir, leia e opere em modo de atualização.
    - Crie o diretório se ele não existir.
@@ -57,6 +58,7 @@ Crie uma tarefa para cada etapa e conclua em ordem:
 3. Faça perguntas usando `references/question-protocol.md`.
    - Foque somente em O QUE os usuários precisam, POR QUE isso gera valor e QUEM são os usuários.
    - Pergunte sobre critérios de sucesso e restrições.
+   - Em multi-project, pergunte também quais sistemas, serviços ou repositórios são impactados do ponto de vista de negócio.
    - Nunca pergunte sobre bancos, APIs, frameworks, arquitetura, testes ou estratégia de implementação.
    - Faça exatamente uma pergunta por mensagem. Quando houver opções razoáveis, use múltipla escolha com letras e uma opção "Outro".
    - Complete ao menos uma rodada de esclarecimento antes de apresentar abordagens.
@@ -74,6 +76,7 @@ Crie uma tarefa para cada etapa e conclua em ordem:
    - Inclua "Registros de Decisão de Arquitetura" com links para ADRs em `adrs/`.
    - Aplique YAGNI: remova tudo que nao pertence ao menor recorte viavel desta entrega.
    - O PRD deve descrever capacidades do usuário e resultados de negócio.
+   - Em multi-project, preencha a seção de sistemas ou projetos impactados quando ela fizer sentido para a entrega.
    - So descreva rollout, fases de liberacao ou estrategia incremental quando isso realmente fizer parte da entrega.
    - Não inclua bancos, APIs, estrutura de código, frameworks, estratégia de testes ou decisões arquiteturais.
    - Escreva todo o conteúdo gerado no idioma explicitamente pedido pelo usuário.
