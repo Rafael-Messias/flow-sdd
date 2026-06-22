@@ -1,8 +1,16 @@
 {
   "name": "flow-sdd",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Installable flow-* skills package with project-local sync for Codex and Claude style workflows.",
   "author": "Rafael Messias",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rafael-Messias/flow-skills.git"
+  },
+  "homepage": "https://github.com/Rafael-Messias/flow-skills#readme",
+  "bugs": {
+    "url": "https://github.com/Rafael-Messias/flow-skills/issues"
+  },
   "type": "module",
   "bin": {
     "flow-sdd": "./bin/flow-sdd.js"

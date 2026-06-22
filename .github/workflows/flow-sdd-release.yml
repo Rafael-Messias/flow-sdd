@@ -63,5 +63,12 @@ jobs:
       - name: Test
         run: npm run test
 
+      - name: Align package metadata with publishing repository
+        run: |
+          npm pkg set repository.type=git
+          npm pkg set repository.url="https://github.com/${GITHUB_REPOSITORY}"
+          npm pkg set homepage="https://github.com/${GITHUB_REPOSITORY}#readme"
+          npm pkg set bugs.url="https://github.com/${GITHUB_REPOSITORY}/issues"
+
       - name: Publish
         run: npm publish --access public
